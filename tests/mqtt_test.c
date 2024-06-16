@@ -31,8 +31,8 @@
  */
 #define MQTT_TEST_SERVER_URI    "tcp://iot.eclipse.org:1883"
 #define MQTT_CLIENTID           "rtthread-mqtt"
-#define MQTT_USERNAME           "admin"
-#define MQTT_PASSWORD           "admin"
+// #define MQTT_USERNAME           "admin"
+// #define MQTT_PASSWORD           "admin"
 #define MQTT_SUBTOPIC           "/mqtt/test"
 #define MQTT_PUBTOPIC           "/mqtt/test"
 #define MQTT_WILLMSG            "Goodbye!"
@@ -100,8 +100,8 @@ static void mq_start(void)
         client.condata.clientID.cstring = MQTT_CLIENTID;
         client.condata.keepAliveInterval = 60;
         client.condata.cleansession = 1;
-        client.condata.username.cstring = MQTT_USERNAME;
-        client.condata.password.cstring = MQTT_PASSWORD;
+        client.condata.username.cstring = NULL;
+        client.condata.password.cstring = NULL;
 
         /* config MQTT will param. */
         client.condata.willFlag = 1;

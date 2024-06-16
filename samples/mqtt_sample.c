@@ -25,9 +25,9 @@
  * tcp://[fe80::20c:29ff:fe9a:a07e]:1883
  * ssl://[fe80::20c:29ff:fe9a:a07e]:1884
  */
-#define MQTT_URI                "tcp://mq.tongxinmao.com:18831"
-#define MQTT_SUBTOPIC           "/mqtt/test"
-#define MQTT_PUBTOPIC           "/mqtt/test"
+#define MQTT_URI                "tcp://120.76.100.197:18830"
+#define MQTT_SUBTOPIC           "/mqtt/test/gg"
+#define MQTT_PUBTOPIC           "dt_mqtt/temperature"
 #define MQTT_WILLMSG            "Goodbye!"
 
 /* define MQTT client context */
