@@ -25,9 +25,9 @@
  * tcp://[fe80::20c:29ff:fe9a:a07e]:1883
  * ssl://[fe80::20c:29ff:fe9a:a07e]:1884
  */
-#define MQTT_URI                "tcp://mq.tongxinmao.com:18831"
-#define MQTT_SUBTOPIC           "/mqtt/test"
-#define MQTT_PUBTOPIC           "/mqtt/test"
+#define MQTT_URI                "tcp://120.76.100.197:18830"
+#define MQTT_SUBTOPIC           "/mqtt/test/get"
+#define MQTT_PUBTOPIC           "impulse/openmv/result"
 #define MQTT_WILLMSG            "Goodbye!"
 
 /* define MQTT client context */
@@ -217,6 +217,81 @@ static int mqtt_unsubscribe(int argc, char **argv)
 
     return paho_mqtt_unsubscribe(&client, argv[1]);
 }
+
+int mqtt_publish_py(const char *msg_str)
+{
+    if (is_started == 0)
+    {
+        LOG_E("mqtt client is not connected.");
+        return -1;
+    }
+
+    paho_mqtt_publish(&client, QOS1, MQTT_PUBTOPIC, msg_str);
+    return 0;
+}
+
+int mqtt_start_py(void)
+{
+    /* init condata param by using MQTTPacket_connectData_initializer */
+    MQTTPacket_connectData condata = MQTTPacket_connectData_initializer;
+    static char cid[20] = { 0 };
+
+    if (is_started)
+    {
+        LOG_E("mqtt client is already connected.");
+        return -2;
+    }
+    /* config MQTT context param */
+    {
+        client.isconnected = 0;
+        client.uri = MQTT_URI;
+
+        /* generate the random client ID */
+        rt_snprintf(cid, sizeof(cid), "rtthread%d", rt_tick_get());
+        /* config connect param */
+        rt_memcpy(&client.condata, &condata, sizeof(condata));
+        client.condata.clientID.cstring = cid;
+        client.condata.keepAliveInterval = 30;
+        client.condata.cleansession = 1;
+
+        /* config MQTT will param. */
+        client.condata.willFlag = 1;
+        client.condata.will.qos = 1;
+        client.condata.will.retained = 0;
+        client.condata.will.topicName.cstring = MQTT_PUBTOPIC;
+        client.condata.will.message.cstring = MQTT_WILLMSG;
+
+        /* rt_malloc buffer. */
+        client.buf_size = client.readbuf_size = 1024;
+        client.buf = rt_calloc(1, client.buf_size);
+        client.readbuf = rt_calloc(1, client.readbuf_size);
+        if (!(client.buf && client.readbuf))
+        {
+            LOG_E("no memory for MQTT client buffer!");
+            return -1;
+        }
+
+        /* set event callback function */
+        client.connect_callback = mqtt_connect_callback;
+        client.online_callback = mqtt_online_callback;
+        client.offline_callback = mqtt_offline_callback;
+
+        /* set subscribe table and event callback */
+        client.messageHandlers[0].topicFilter = rt_strdup(MQTT_SUBTOPIC);
+        client.messageHandlers[0].callback = mqtt_sub_callback;
+        client.messageHandlers[0].qos = QOS1;
+
+        /* set default subscribe event callback */
+        client.defaultMessageHandler = mqtt_sub_default_callback;
+    }
+
+    /* run mqtt client */
+    paho_mqtt_start(&client);
+    is_started = 1;
+
+    return 0;
+}
+
 
 #ifdef FINSH_USING_MSH
 MSH_CMD_EXPORT(mqtt_start, startup mqtt client);
