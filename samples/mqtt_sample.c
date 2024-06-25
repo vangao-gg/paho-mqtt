@@ -25,10 +25,12 @@
  * tcp://[fe80::20c:29ff:fe9a:a07e]:1883
  * ssl://[fe80::20c:29ff:fe9a:a07e]:1884
  */
-#define MQTT_URI                "tcp://120.76.100.197:18830"
+#define MQTT_URI                "tcp://47.97.21.151:1883"
 #define MQTT_SUBTOPIC           "/mqtt/test/gg"
-#define MQTT_PUBTOPIC           "sensor/ds18b20"
+#define MQTT_PUBTOPIC           "/sensor/ds18b20"
 #define MQTT_WILLMSG            "Goodbye!"
+#define MQTT_USERNAME           "gg"
+#define MQTT_PASSWORD           "test"
 
 /* define MQTT client context */
 static MQTTClient client;
@@ -241,6 +243,8 @@ int mqtt_start_ex(void)
         client.condata.clientID.cstring = cid;
         client.condata.keepAliveInterval = 30;
         client.condata.cleansession = 1;
+        client.condata.username.cstring = MQTT_USERNAME;
+        client.condata.password.cstring = MQTT_PASSWORD;
 
         /* config MQTT will param. */
         client.condata.willFlag = 1;
